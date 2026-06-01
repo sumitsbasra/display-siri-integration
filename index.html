@@ -203,8 +203,8 @@
     </div>
   </div>
   <div class="nav">
-    <button id="btn-back" class="focusable primary">Back</button>
-    <button id="btn-talk-again" class="focusable">Talk again</button>
+    <button id="btn-new-chat" class="focusable">New chat</button>
+    <button id="btn-continue" class="focusable primary" style="flex:2">Continue</button>
   </div>
 </div>
 
@@ -212,13 +212,20 @@
 <div id="screen-settings" class="screen hidden">
   <div class="header">
     <h1>SETTINGS</h1>
-    <div class="status">Your context for Iris</div>
+    <div class="status">Iris settings</div>
   </div>
   <div class="content" style="align-items:flex-start; justify-content:flex-start;">
     <div class="settings-list">
       <div class="field">
+        <label>Server URL</label>
+        <textarea id="s-server" rows="2"
+          placeholder="https://xxxx.trycloudflare.com"
+        ></textarea>
+        <div class="field-hint">Cloudflare Tunnel URL from start.sh — no trailing slash.</div>
+      </div>
+      <div class="field">
         <label>About you</label>
-        <textarea id="s-context" rows="7"
+        <textarea id="s-context" rows="5"
           placeholder="I'm a software engineer in San Francisco. My work calendar is called 'Work'. I have a weekly standup on Tuesdays at 10am. I prefer short, direct answers."
         ></textarea>
         <div class="field-hint">Included with every query — your name, job, preferences, anything useful.</div>
@@ -238,6 +245,8 @@
 const cfg = {
   get context()   { return localStorage.getItem('iris.context') || ''; },
   set context(v)  { localStorage.setItem('iris.context', v); },
+  get serverUrl() { return localStorage.getItem('iris.serverUrl') || ''; },
+  set serverUrl(v){ localStorage.setItem('iris.serverUrl', v); },
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -245,6 +254,7 @@ let recognition = null;
 let listening = false;
 let currentScreen = 'home';
 let pendingTranscript = '';
+let conversationHistory = [];
 
 // ── Screens ───────────────────────────────────────────────────────────────────
 function show(name) {
@@ -306,19 +316,26 @@ async function sendQuery(query) {
   setStatus('Asking Iris…');
 
   try {
-    const res = await fetch('/api/ask', {
+    const base = cfg.serverUrl.replace(/\/$/, '');
+    if (!base) throw new Error('No server URL — add it in Settings');
+
+    const res = await fetch(`${base}/ask`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query,
         userContext: cfg.context,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        history: conversationHistory,
       }),
     });
 
     const data = await res.json();
 
     if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+
+    conversationHistory.push({ role: 'user', content: query });
+    conversationHistory.push({ role: 'assistant', content: data.response });
 
     setOrb('idle');
     setHint('Press Enter to talk');
@@ -377,10 +394,18 @@ function stopListening() { recognition?.stop(); }
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 document.getElementById('btn-talk').onclick       = () => listening ? stopListening() : startListening();
-document.getElementById('btn-settings').onclick   = () => { document.getElementById('s-context').value = cfg.context; show('settings'); };
-document.getElementById('btn-back').onclick       = () => show('home');
-document.getElementById('btn-talk-again').onclick  = () => { show('home'); startListening(); };
-document.getElementById('btn-save').onclick       = () => { cfg.context = document.getElementById('s-context').value.trim(); show('home'); };
+document.getElementById('btn-settings').onclick   = () => {
+  document.getElementById('s-server').value  = cfg.serverUrl;
+  document.getElementById('s-context').value = cfg.context;
+  show('settings');
+};
+document.getElementById('btn-new-chat').onclick   = () => { conversationHistory = []; show('home'); };
+document.getElementById('btn-continue').onclick   = () => show('home');
+document.getElementById('btn-save').onclick       = () => {
+  cfg.serverUrl = document.getElementById('s-server').value.trim();
+  cfg.context   = document.getElementById('s-context').value.trim();
+  show('home');
+};
 document.getElementById('btn-cancel').onclick     = () => show('home');
 </script>
 </body>

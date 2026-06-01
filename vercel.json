@@ -1,5 +1,0 @@
-{
-  "functions": {
-    "api/ask.js": { "maxDuration": 30 }
-  }
-}
