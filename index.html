@@ -43,22 +43,8 @@
     .header .status {
       margin-top: 5px;
       font-size: 12px;
-      color: #333;
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      color: #444;
     }
-    .conn-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      transition: background 0.3s;
-    }
-    .conn-dot.connected    { background: #22c55e; }
-    .conn-dot.disconnected { background: #ef4444; }
-    .conn-dot.connecting   { background: #f59e0b; animation: blink 1s step-end infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
 
     /* ── Content ── */
     .content {
@@ -71,7 +57,7 @@
       padding: 24px;
     }
 
-    /* ── Nav bar ── */
+    /* ── Nav ── */
     .nav {
       flex-shrink: 0;
       padding: 10px 16px;
@@ -100,11 +86,7 @@
       color: #c4b5fd;
       background: #0d071e;
     }
-    .focusable.primary {
-      border-color: #3b1f6e;
-      color: #a78bfa;
-      background: #080514;
-    }
+    .focusable.primary { border-color: #3b1f6e; color: #a78bfa; background: #080514; }
     .focusable.primary:focus {
       border-color: #7c3aed;
       box-shadow: 0 0 22px rgba(124, 58, 237, 0.45);
@@ -112,14 +94,8 @@
       background: #160b30;
     }
 
-    /* ── HOME: Orb ── */
-    .orb-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      width: 100%;
-    }
+    /* ── Orb ── */
+    .orb-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
     .orb {
       width: 118px;
       height: 118px;
@@ -130,29 +106,18 @@
       justify-content: center;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .orb.listening {
-      border-color: #ef4444;
-      animation: pulse-red 1s ease-in-out infinite;
-    }
-    .orb.thinking {
-      border-color: #7c3aed;
-      animation: pulse-purple 1.5s ease-in-out infinite;
-    }
+    .orb.listening { border-color: #ef4444; animation: pulse-red 1s ease-in-out infinite; }
+    .orb.thinking  { border-color: #7c3aed; animation: pulse-purple 1.5s ease-in-out infinite; }
     @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.25), 0 0 0 0 rgba(239,68,68,0); }
-      50%       { box-shadow: 0 0 48px rgba(239,68,68,0.55), 0 0 0 10px rgba(239,68,68,0.07); }
+      0%,100% { box-shadow: 0 0 20px rgba(239,68,68,0.2); }
+      50%      { box-shadow: 0 0 50px rgba(239,68,68,0.55), 0 0 0 10px rgba(239,68,68,0.07); }
     }
     @keyframes pulse-purple {
-      0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.2), 0 0 0 0 rgba(124,58,237,0); }
-      50%       { box-shadow: 0 0 48px rgba(124,58,237,0.5), 0 0 0 10px rgba(124,58,237,0.07); }
+      0%,100% { box-shadow: 0 0 20px rgba(124,58,237,0.2); }
+      50%      { box-shadow: 0 0 50px rgba(124,58,237,0.5), 0 0 0 10px rgba(124,58,237,0.07); }
     }
     .orb svg { width: 46px; height: 46px; }
-
-    .orb-hint {
-      font-size: 14px;
-      color: #333;
-      letter-spacing: 0.3px;
-    }
+    .orb-hint { font-size: 14px; color: #333; }
     .transcript {
       font-size: 17px;
       color: #7c3aed;
@@ -164,30 +129,13 @@
     }
     .transcript.final { color: #a78bfa; }
 
-    /* ── RESPONSE SCREEN ── */
-    .response-scroll {
-      width: 100%;
-      height: 100%;
-      overflow-y: auto;
-      scrollbar-width: none;
-      padding-right: 4px;
-    }
+    /* ── Response ── */
+    .response-scroll { width: 100%; height: 100%; overflow-y: auto; scrollbar-width: none; }
     .response-scroll::-webkit-scrollbar { display: none; }
-    .response-text {
-      font-size: 18px;
-      line-height: 1.7;
-      color: #e2e8f0;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
+    .response-text { font-size: 18px; line-height: 1.7; color: #e2e8f0; white-space: pre-wrap; word-break: break-word; }
 
-    /* ── SETTINGS SCREEN ── */
-    .settings-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
+    /* ── Settings ── */
+    .settings-list { width: 100%; display: flex; flex-direction: column; gap: 16px; }
     .field label {
       display: block;
       font-size: 11px;
@@ -196,7 +144,7 @@
       color: #333;
       margin-bottom: 7px;
     }
-    .field input {
+    .field textarea {
       width: 100%;
       padding: 12px 14px;
       background: #070707;
@@ -204,11 +152,15 @@
       border-radius: 8px;
       color: #e2e8f0;
       font-size: 14px;
+      line-height: 1.6;
       outline: none;
+      resize: none;
+      font-family: inherit;
       transition: border-color 0.12s;
     }
-    .field input:focus { border-color: #7c3aed; }
-    .field input::placeholder { color: #2a2a2a; }
+    .field textarea:focus { border-color: #7c3aed; }
+    .field textarea::placeholder { color: #222; }
+    .field-hint { font-size: 12px; color: #2a2a2a; margin-top: 5px; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -217,19 +169,16 @@
 <div id="screen-home" class="screen">
   <div class="header">
     <h1>IRIS</h1>
-    <div class="status">
-      <span id="conn-dot" class="conn-dot disconnected"></span>
-      <span id="conn-label">Disconnected</span>
-    </div>
+    <div id="status-text" class="status">Ready</div>
   </div>
   <div class="content">
     <div class="orb-wrap">
       <div id="orb" class="orb">
         <svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="16" y="6" width="14" height="20" rx="7" stroke="#3a3a3a" stroke-width="2.2"/>
-          <path d="M8 23c0 8.284 6.716 15 15 15s15-6.716 15-15" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
-          <line x1="23" y1="38" x2="23" y2="44" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
-          <line x1="15" y1="44" x2="31" y2="44" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
+          <rect x="16" y="6" width="14" height="20" rx="7" stroke="#2a2a2a" stroke-width="2.2"/>
+          <path d="M8 23c0 8.284 6.716 15 15 15s15-6.716 15-15" stroke="#2a2a2a" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="23" y1="38" x2="23" y2="44" stroke="#2a2a2a" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="15" y1="44" x2="31" y2="44" stroke="#2a2a2a" stroke-width="2.2" stroke-linecap="round"/>
         </svg>
       </div>
       <div id="orb-hint" class="orb-hint">Press Enter to talk</div>
@@ -263,22 +212,21 @@
 <div id="screen-settings" class="screen hidden">
   <div class="header">
     <h1>SETTINGS</h1>
-    <div class="status">Iris Gateway connection</div>
+    <div class="status">Your context for Iris</div>
   </div>
   <div class="content" style="align-items:flex-start; justify-content:flex-start;">
     <div class="settings-list">
       <div class="field">
-        <label>Gateway URL</label>
-        <input id="s-url" type="url" placeholder="wss://xxxx.trycloudflare.com" autocomplete="off" spellcheck="false">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input id="s-password" type="password" placeholder="iris gateway password" autocomplete="new-password">
+        <label>About you</label>
+        <textarea id="s-context" rows="7"
+          placeholder="I'm a software engineer in San Francisco. My work calendar is called 'Work'. I have a weekly standup on Tuesdays at 10am. I prefer short, direct answers."
+        ></textarea>
+        <div class="field-hint">Included with every query — your name, job, preferences, anything useful.</div>
       </div>
     </div>
   </div>
   <div class="nav">
-    <button id="btn-save" class="focusable primary" style="flex:2">Save &amp; Connect</button>
+    <button id="btn-save" class="focusable primary" style="flex:2">Save</button>
     <button id="btn-cancel" class="focusable">Cancel</button>
   </div>
 </div>
@@ -286,34 +234,28 @@
 <script>
 'use strict';
 
-// ── Config (persisted to localStorage) ──────────────────────────────────────
+// ── Persisted config ──────────────────────────────────────────────────────────
 const cfg = {
-  get url()   { return localStorage.getItem('iris.url')  || ''; },
-  set url(v)  { localStorage.setItem('iris.url', v); },
-  get pass()  { return localStorage.getItem('iris.pass') || ''; },
-  set pass(v) { localStorage.setItem('iris.pass', v); },
+  get context()   { return localStorage.getItem('iris.context') || ''; },
+  set context(v)  { localStorage.setItem('iris.context', v); },
 };
 
-// ── Runtime state ────────────────────────────────────────────────────────────
-let ws = null;
-let authed = false;
+// ── State ─────────────────────────────────────────────────────────────────────
 let recognition = null;
 let listening = false;
 let currentScreen = 'home';
 let pendingTranscript = '';
 
-// ── Screens ──────────────────────────────────────────────────────────────────
+// ── Screens ───────────────────────────────────────────────────────────────────
 function show(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById('screen-' + name).classList.remove('hidden');
   currentScreen = name;
-  const first = document.querySelector('#screen-' + name + ' .focusable');
-  if (first) first.focus();
+  document.querySelector('#screen-' + name + ' .focusable')?.focus();
 }
 
-// ── D-pad / keyboard navigation ──────────────────────────────────────────────
+// ── D-pad navigation ──────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  // Up/Down on response screen scrolls text when no button is focused
   if (currentScreen === 'response' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
     const navBtns = [...document.querySelectorAll('#screen-response .focusable')];
     if (!navBtns.includes(document.activeElement)) {
@@ -329,13 +271,11 @@ document.addEventListener('keydown', e => {
   const idx = focusables.indexOf(document.activeElement);
 
   switch (e.key) {
-    case 'ArrowDown':
-    case 'ArrowRight':
+    case 'ArrowDown': case 'ArrowRight':
       e.preventDefault();
       focusables[(idx + 1) % focusables.length]?.focus();
       break;
-    case 'ArrowUp':
-    case 'ArrowLeft':
+    case 'ArrowUp': case 'ArrowLeft':
       e.preventDefault();
       focusables[(idx - 1 + focusables.length) % focusables.length]?.focus();
       break;
@@ -346,88 +286,61 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ── Connection status ────────────────────────────────────────────────────────
-function setConnUI(status, label) {
-  document.getElementById('conn-dot').className = 'conn-dot ' + status;
-  document.getElementById('conn-label').textContent = label;
-}
-
-// ── WebSocket — speaks iris-mac GatewayServer protocol ──────────────────────
-function connect() {
-  if (!cfg.url) return;
-  if (ws) { ws.onclose = null; ws.close(); ws = null; }
-
-  authed = false;
-  setConnUI('connecting', 'Connecting…');
-
-  ws = new WebSocket(cfg.url);
-
-  ws.onmessage = ({ data }) => {
-    let msg;
-    try { msg = JSON.parse(data); } catch { return; }
-
-    switch (msg.type) {
-      case 'auth_required':
-        ws.send(cfg.pass);
-        break;
-      case 'auth_ok':
-        authed = true;
-        setConnUI('connected', 'Connected to Iris');
-        break;
-      case 'auth_failed':
-        setConnUI('disconnected', 'Wrong password');
-        ws.close();
-        break;
-      case 'thinking':
-        setOrb('thinking');
-        setHint('Thinking…');
-        break;
-      case 'response':
-        setOrb('idle');
-        setHint('Press Enter to talk');
-        setTranscript('');
-        showResponse(msg.message || '(empty response)');
-        break;
-      case 'error':
-        setOrb('idle');
-        setHint('Error — try again');
-        break;
-    }
-  };
-
-  ws.onclose = () => {
-    authed = false;
-    setConnUI('disconnected', 'Disconnected');
-    setTimeout(connect, 5000);
-  };
-
-  ws.onerror = () => setConnUI('disconnected', 'Connection error');
-}
-
-// ── Orb state ────────────────────────────────────────────────────────────────
+// ── Orb helpers ───────────────────────────────────────────────────────────────
 function setOrb(state) {
   document.getElementById('orb').className = 'orb' + (state !== 'idle' ? ' ' + state : '');
 }
+function setHint(t)   { document.getElementById('orb-hint').textContent = t; }
+function setStatus(t) { document.getElementById('status-text').textContent = t; }
 
-function setHint(t) {
-  document.getElementById('orb-hint').textContent = t;
-}
-
-function setTranscript(t, isFinal = false) {
+function setTranscript(t, isFinal) {
   const el = document.getElementById('transcript');
   el.textContent = t;
   el.className = 'transcript' + (isFinal ? ' final' : '');
 }
 
-// ── Voice — Web Speech API (push-to-talk) ────────────────────────────────────
+// ── API call ──────────────────────────────────────────────────────────────────
+async function sendQuery(query) {
+  setOrb('thinking');
+  setHint('Thinking…');
+  setStatus('Asking Iris…');
+
+  try {
+    const res = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        userContext: cfg.context,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+
+    setOrb('idle');
+    setHint('Press Enter to talk');
+    setTranscript('');
+    setStatus('Ready');
+    document.getElementById('response-text').textContent = data.response;
+    document.getElementById('response-scroll').scrollTop = 0;
+    show('response');
+
+  } catch (err) {
+    setOrb('idle');
+    setHint('Error — try again');
+    setStatus(err.message.slice(0, 60));
+    console.error(err);
+  }
+}
+
+// ── Voice (Web Speech API) ────────────────────────────────────────────────────
 function startListening() {
   if (listening) return;
-
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    setHint('Speech not available on this browser');
-    return;
-  }
+  if (!SR) { setHint('Speech not available on this browser'); return; }
 
   recognition = new SR();
   recognition.lang = 'en-US';
@@ -440,8 +353,7 @@ function startListening() {
   recognition.onerror  = e  => { listening = false; setOrb('idle'); setHint('Mic error: ' + e.error); };
 
   recognition.onresult = ({ resultIndex, results }) => {
-    let interim = '';
-    let final   = '';
+    let interim = '', final = '';
     for (let i = resultIndex; i < results.length; i++) {
       const t = results[i][0].transcript;
       results[i].isFinal ? (final += t) : (interim += t);
@@ -454,61 +366,22 @@ function startListening() {
     listening = false;
     recognition = null;
     const query = pendingTranscript.trim();
-    if (!query) {
-      setOrb('idle');
-      setHint('Press Enter to talk');
-      return;
-    }
-    if (!authed) {
-      setHint('Not connected — check Settings');
-      setOrb('idle');
-      return;
-    }
-    setOrb('thinking');
-    setHint('Sending to Iris…');
-    ws.send(query);
+    if (query) sendQuery(query);
+    else { setOrb('idle'); setHint('Press Enter to talk'); }
   };
 
   recognition.start();
 }
 
-function stopListening() {
-  if (recognition) recognition.stop();
-}
+function stopListening() { recognition?.stop(); }
 
-// ── Response screen ──────────────────────────────────────────────────────────
-function showResponse(text) {
-  document.getElementById('response-text').textContent = text;
-  document.getElementById('response-scroll').scrollTop = 0;
-  show('response');
-}
-
-// ── Button handlers ──────────────────────────────────────────────────────────
-document.getElementById('btn-talk').onclick = () => {
-  if (!authed) { setHint('Not connected — open Settings'); return; }
-  listening ? stopListening() : startListening();
-};
-
-document.getElementById('btn-settings').onclick = () => {
-  document.getElementById('s-url').value = cfg.url;
-  document.getElementById('s-password').value = cfg.pass;
-  show('settings');
-};
-
-document.getElementById('btn-back').onclick      = () => show('home');
-document.getElementById('btn-talk-again').onclick = () => { show('home'); startListening(); };
-
-document.getElementById('btn-save').onclick = () => {
-  cfg.url  = document.getElementById('s-url').value.trim();
-  cfg.pass = document.getElementById('s-password').value;
-  show('home');
-  connect();
-};
-
-document.getElementById('btn-cancel').onclick = () => show('home');
-
-// ── Boot ─────────────────────────────────────────────────────────────────────
-if (cfg.url) connect();
+// ── Buttons ───────────────────────────────────────────────────────────────────
+document.getElementById('btn-talk').onclick       = () => listening ? stopListening() : startListening();
+document.getElementById('btn-settings').onclick   = () => { document.getElementById('s-context').value = cfg.context; show('settings'); };
+document.getElementById('btn-back').onclick       = () => show('home');
+document.getElementById('btn-talk-again').onclick  = () => { show('home'); startListening(); };
+document.getElementById('btn-save').onclick       = () => { cfg.context = document.getElementById('s-context').value.trim(); show('home'); };
+document.getElementById('btn-cancel').onclick     = () => show('home');
 </script>
 </body>
 </html>
