@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=600, initial-scale=1.0">
+  <title>Iris</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 600px;
+      height: 600px;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      width: 600px;
+      height: 600px;
+    }
+    .screen.hidden { display: none; }
+
+    /* ── Header ── */
+    .header {
+      flex-shrink: 0;
+      padding: 20px 26px 14px;
+      border-bottom: 1px solid #111;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 5px;
+      color: #a78bfa;
+    }
+    .header .status {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .conn-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .conn-dot.connected    { background: #22c55e; }
+    .conn-dot.disconnected { background: #ef4444; }
+    .conn-dot.connecting   { background: #f59e0b; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Nav bar ── */
+    .nav {
+      flex-shrink: 0;
+      padding: 10px 16px;
+      border-top: 1px solid #111;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* ── Focusable ── */
+    .focusable {
+      outline: none;
+      flex: 1;
+      padding: 13px 16px;
+      background: #0a0a0a;
+      border: 2px solid #1c1c1c;
+      border-radius: 10px;
+      color: #555;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.12s, box-shadow 0.12s, color 0.12s, background 0.12s;
+    }
+    .focusable:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 16px rgba(124, 58, 237, 0.3);
+      color: #c4b5fd;
+      background: #0d071e;
+    }
+    .focusable.primary {
+      border-color: #3b1f6e;
+      color: #a78bfa;
+      background: #080514;
+    }
+    .focusable.primary:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 22px rgba(124, 58, 237, 0.45);
+      color: #ddd6fe;
+      background: #160b30;
+    }
+
+    /* ── HOME: Orb ── */
+    .orb-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+    .orb {
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      border: 2px solid #1c1c1c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .orb.listening {
+      border-color: #ef4444;
+      animation: pulse-red 1s ease-in-out infinite;
+    }
+    .orb.thinking {
+      border-color: #7c3aed;
+      animation: pulse-purple 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.25), 0 0 0 0 rgba(239,68,68,0); }
+      50%       { box-shadow: 0 0 48px rgba(239,68,68,0.55), 0 0 0 10px rgba(239,68,68,0.07); }
+    }
+    @keyframes pulse-purple {
+      0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.2), 0 0 0 0 rgba(124,58,237,0); }
+      50%       { box-shadow: 0 0 48px rgba(124,58,237,0.5), 0 0 0 10px rgba(124,58,237,0.07); }
+    }
+    .orb svg { width: 46px; height: 46px; }
+
+    .orb-hint {
+      font-size: 14px;
+      color: #333;
+      letter-spacing: 0.3px;
+    }
+    .transcript {
+      font-size: 17px;
+      color: #7c3aed;
+      text-align: center;
+      line-height: 1.5;
+      min-height: 52px;
+      max-width: 480px;
+      transition: color 0.2s;
+    }
+    .transcript.final { color: #a78bfa; }
+
+    /* ── RESPONSE SCREEN ── */
+    .response-scroll {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding-right: 4px;
+    }
+    .response-scroll::-webkit-scrollbar { display: none; }
+    .response-text {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── SETTINGS SCREEN ── */
+    .settings-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .field label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #333;
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      background: #070707;
+      border: 2px solid #1c1c1c;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.12s;
+    }
+    .field input:focus { border-color: #7c3aed; }
+    .field input::placeholder { color: #2a2a2a; }
+  </style>
+</head>
+<body>
+
+<!-- ── HOME ── -->
+<div id="screen-home" class="screen">
+  <div class="header">
+    <h1>IRIS</h1>
+    <div class="status">
+      <span id="conn-dot" class="conn-dot disconnected"></span>
+      <span id="conn-label">Disconnected</span>
+    </div>
+  </div>
+  <div class="content">
+    <div class="orb-wrap">
+      <div id="orb" class="orb">
+        <svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="16" y="6" width="14" height="20" rx="7" stroke="#3a3a3a" stroke-width="2.2"/>
+          <path d="M8 23c0 8.284 6.716 15 15 15s15-6.716 15-15" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="23" y1="38" x2="23" y2="44" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="15" y1="44" x2="31" y2="44" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div id="orb-hint" class="orb-hint">Press Enter to talk</div>
+      <div id="transcript" class="transcript"></div>
+    </div>
+  </div>
+  <div class="nav">
+    <button id="btn-talk" class="focusable primary" style="flex:2">Talk</button>
+    <button id="btn-settings" class="focusable">Settings</button>
+  </div>
+</div>
+
+<!-- ── RESPONSE ── -->
+<div id="screen-response" class="screen hidden">
+  <div class="header">
+    <h1>IRIS</h1>
+    <div class="status" style="color:#6d28d9">Response</div>
+  </div>
+  <div class="content" style="align-items:flex-start; justify-content:flex-start; padding-top:16px;">
+    <div id="response-scroll" class="response-scroll">
+      <div id="response-text" class="response-text"></div>
+    </div>
+  </div>
+  <div class="nav">
+    <button id="btn-back" class="focusable primary">Back</button>
+    <button id="btn-talk-again" class="focusable">Talk again</button>
+  </div>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div id="screen-settings" class="screen hidden">
+  <div class="header">
+    <h1>SETTINGS</h1>
+    <div class="status">Iris Gateway connection</div>
+  </div>
+  <div class="content" style="align-items:flex-start; justify-content:flex-start;">
+    <div class="settings-list">
+      <div class="field">
+        <label>Gateway URL</label>
+        <input id="s-url" type="url" placeholder="wss://xxxx.trycloudflare.com" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="s-password" type="password" placeholder="iris gateway password" autocomplete="new-password">
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <button id="btn-save" class="focusable primary" style="flex:2">Save &amp; Connect</button>
+    <button id="btn-cancel" class="focusable">Cancel</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── Config (persisted to localStorage) ──────────────────────────────────────
+const cfg = {
+  get url()   { return localStorage.getItem('iris.url')  || ''; },
+  set url(v)  { localStorage.setItem('iris.url', v); },
+  get pass()  { return localStorage.getItem('iris.pass') || ''; },
+  set pass(v) { localStorage.setItem('iris.pass', v); },
+};
+
+// ── Runtime state ────────────────────────────────────────────────────────────
+let ws = null;
+let authed = false;
+let recognition = null;
+let listening = false;
+let currentScreen = 'home';
+let pendingTranscript = '';
+
+// ── Screens ──────────────────────────────────────────────────────────────────
+function show(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('screen-' + name).classList.remove('hidden');
+  currentScreen = name;
+  const first = document.querySelector('#screen-' + name + ' .focusable');
+  if (first) first.focus();
+}
+
+// ── D-pad / keyboard navigation ──────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Up/Down on response screen scrolls text when no button is focused
+  if (currentScreen === 'response' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    const navBtns = [...document.querySelectorAll('#screen-response .focusable')];
+    if (!navBtns.includes(document.activeElement)) {
+      document.getElementById('response-scroll')
+        .scrollBy({ top: e.key === 'ArrowDown' ? 90 : -90, behavior: 'smooth' });
+      e.preventDefault();
+      return;
+    }
+  }
+
+  const screen = document.getElementById('screen-' + currentScreen);
+  const focusables = [...screen.querySelectorAll('.focusable')];
+  const idx = focusables.indexOf(document.activeElement);
+
+  switch (e.key) {
+    case 'ArrowDown':
+    case 'ArrowRight':
+      e.preventDefault();
+      focusables[(idx + 1) % focusables.length]?.focus();
+      break;
+    case 'ArrowUp':
+    case 'ArrowLeft':
+      e.preventDefault();
+      focusables[(idx - 1 + focusables.length) % focusables.length]?.focus();
+      break;
+    case 'Enter':
+      e.preventDefault();
+      if (focusables.includes(document.activeElement)) document.activeElement.click();
+      break;
+  }
+});
+
+// ── Connection status ────────────────────────────────────────────────────────
+function setConnUI(status, label) {
+  document.getElementById('conn-dot').className = 'conn-dot ' + status;
+  document.getElementById('conn-label').textContent = label;
+}
+
+// ── WebSocket — speaks iris-mac GatewayServer protocol ──────────────────────
+function connect() {
+  if (!cfg.url) return;
+  if (ws) { ws.onclose = null; ws.close(); ws = null; }
+
+  authed = false;
+  setConnUI('connecting', 'Connecting…');
+
+  ws = new WebSocket(cfg.url);
+
+  ws.onmessage = ({ data }) => {
+    let msg;
+    try { msg = JSON.parse(data); } catch { return; }
+
+    switch (msg.type) {
+      case 'auth_required':
+        ws.send(cfg.pass);
+        break;
+      case 'auth_ok':
+        authed = true;
+        setConnUI('connected', 'Connected to Iris');
+        break;
+      case 'auth_failed':
+        setConnUI('disconnected', 'Wrong password');
+        ws.close();
+        break;
+      case 'thinking':
+        setOrb('thinking');
+        setHint('Thinking…');
+        break;
+      case 'response':
+        setOrb('idle');
+        setHint('Press Enter to talk');
+        setTranscript('');
+        showResponse(msg.message || '(empty response)');
+        break;
+      case 'error':
+        setOrb('idle');
+        setHint('Error — try again');
+        break;
+    }
+  };
+
+  ws.onclose = () => {
+    authed = false;
+    setConnUI('disconnected', 'Disconnected');
+    setTimeout(connect, 5000);
+  };
+
+  ws.onerror = () => setConnUI('disconnected', 'Connection error');
+}
+
+// ── Orb state ────────────────────────────────────────────────────────────────
+function setOrb(state) {
+  document.getElementById('orb').className = 'orb' + (state !== 'idle' ? ' ' + state : '');
+}
+
+function setHint(t) {
+  document.getElementById('orb-hint').textContent = t;
+}
+
+function setTranscript(t, isFinal = false) {
+  const el = document.getElementById('transcript');
+  el.textContent = t;
+  el.className = 'transcript' + (isFinal ? ' final' : '');
+}
+
+// ── Voice — Web Speech API (push-to-talk) ────────────────────────────────────
+function startListening() {
+  if (listening) return;
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    setHint('Speech not available on this browser');
+    return;
+  }
+
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  listening = true;
+  pendingTranscript = '';
+
+  recognition.onstart  = () => { setOrb('listening'); setHint('Listening…'); setTranscript(''); };
+  recognition.onerror  = e  => { listening = false; setOrb('idle'); setHint('Mic error: ' + e.error); };
+
+  recognition.onresult = ({ resultIndex, results }) => {
+    let interim = '';
+    let final   = '';
+    for (let i = resultIndex; i < results.length; i++) {
+      const t = results[i][0].transcript;
+      results[i].isFinal ? (final += t) : (interim += t);
+    }
+    pendingTranscript = final || interim;
+    setTranscript(pendingTranscript, !!final);
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    recognition = null;
+    const query = pendingTranscript.trim();
+    if (!query) {
+      setOrb('idle');
+      setHint('Press Enter to talk');
+      return;
+    }
+    if (!authed) {
+      setHint('Not connected — check Settings');
+      setOrb('idle');
+      return;
+    }
+    setOrb('thinking');
+    setHint('Sending to Iris…');
+    ws.send(query);
+  };
+
+  recognition.start();
+}
+
+function stopListening() {
+  if (recognition) recognition.stop();
+}
+
+// ── Response screen ──────────────────────────────────────────────────────────
+function showResponse(text) {
+  document.getElementById('response-text').textContent = text;
+  document.getElementById('response-scroll').scrollTop = 0;
+  show('response');
+}
+
+// ── Button handlers ──────────────────────────────────────────────────────────
+document.getElementById('btn-talk').onclick = () => {
+  if (!authed) { setHint('Not connected — open Settings'); return; }
+  listening ? stopListening() : startListening();
+};
+
+document.getElementById('btn-settings').onclick = () => {
+  document.getElementById('s-url').value = cfg.url;
+  document.getElementById('s-password').value = cfg.pass;
+  show('settings');
+};
+
+document.getElementById('btn-back').onclick      = () => show('home');
+document.getElementById('btn-talk-again').onclick = () => { show('home'); startListening(); };
+
+document.getElementById('btn-save').onclick = () => {
+  cfg.url  = document.getElementById('s-url').value.trim();
+  cfg.pass = document.getElementById('s-password').value;
+  show('home');
+  connect();
+};
+
+document.getElementById('btn-cancel').onclick = () => show('home');
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+if (cfg.url) connect();
+</script>
+</body>
+</html>

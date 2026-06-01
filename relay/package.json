@@ -1,0 +1,15 @@
+{
+  "name": "iris-relay",
+  "version": "1.0.0",
+  "description": "WSS relay — bridges Meta Ray-Ban glasses app to iris-mac GatewayServer",
+  "main": "relay.js",
+  "scripts": {
+    "start": "node relay.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
